@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天才小困的个人空间</title>
+    <style>
+        /* --- 1. 颜色变量定义 --- */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --link-color: #007bff;
+            --border-color: #eee;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
+            --code-bg: #f6f8fa;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --nav-bg: rgba(30, 30, 30, 0.95);
+            --link-color: #66b3ff;
+            --border-color: #222;
+            --card-bg: #1e1e1e;
+            --shadow: 0 4px 15px rgba(0,0,0,0.4);
+            --code-bg: #2d2d2d;
+        }
+
+        /* --- 2. 基础样式 --- */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            transition: all 0.3s ease;
+            line-height: 1.7;
+            padding-top: 80px;
+        }
+
+        /* --- 3. 顶部导航 --- */
+        header {
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            transition: 0.3s;
+        }
+
+        .brand:hover .avatar { transform: scale(1.1) rotate(5deg); }
+        .brand-name { font-weight: 800; font-size: 1.25rem; letter-spacing: 1px; }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .nav-links a:hover { color: var(--link-color); }
+
+        /* 图标切换逻辑 */
+        .icon { width: 18px; height: 18px; object-fit: contain; vertical-align: middle; }
+        .icon-dark { display: none; }
+        .icon-light { display: inline-block; }
+        [data-theme="dark"] .icon-light { display: none; }
+        [data-theme="dark"] .icon-dark { display: inline-block; }
+
+        #theme-toggle {
+            background: none; border: 1px solid var(--border-color); color: var(--text-color);
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- 4. 主要内容区 --- */
+        main { max-width: 800px; margin: 20px auto; padding: 0 20px; min-height: 80vh; }
+
+        .intro { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color); }
+        .intro h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        .intro p { color: var(--text-secondary); font-size: 1.1rem; }
+
+        /* --- 列表视图样式 --- */
+        .post-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: 0.3s;
+            cursor: pointer; /* 鼠标变手型 */
+        }
+        .post-card:hover { transform: translateY(-4px); border-color: var(--link-color); }
+        .post-title { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--text-color); }
+        .post-meta { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; font-family: monospace; }
+        .tag { background: var(--border-color); padding: 2px 8px; border-radius: 4px; margin-right: 5px; }
+        .post-excerpt { color: var(--text-secondary); font-size: 1rem; margin: 0; }
+
+        /* --- 详情页视图样式 (默认隐藏) --- */
+        #detail-view { display: none; animation: fadeIn 0.3s; }
+        
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            margin-bottom: 20px; padding: 8px 16px;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 20px; color: var(--text-color); text-decoration: none;
+            cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+        }
+        .back-btn:hover { background: var(--border-color); }
+
+        .article-cover {
+            width: 100%; height: auto; max-height: 400px; object-fit: cover;
+            border-radius: 12px; margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .article-content { font-size: 1.1rem; color: var(--text-color); }
+        .article-content h3 { margin-top: 30px; margin-bottom: 15px; font-size: 1.5rem; }
+        .article-content p { margin-bottom: 1.5em; }
+        .article-content code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="#" onclick="showList(); return false;" class="brand">
+                <img src="avatar.jpg" alt="天才小困" class="avatar">
+                <span class="brand-name">天才小困</span>
+            </a>
+            
+            <div class="nav-right">
+                <nav class="nav-links">
+                    <a href="https://steamcommunity.com/profiles/76561199594971114/" target="_blank">
+                        <img src="steam-light.png" class="icon icon-light" alt="Steam">
+                        <img src="steam-dark.png" class="icon icon-dark" alt="Steam">
+                        <span>Steam</span>
+                    </a>
+                </nav>
+                <button id="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="list-view">
+            <div class="intro">
+                <h1>Welcome, Traveler.</h1>
+                <p>这里是我的个人空间。分享游戏见闻、硬件折腾笔记和一些代码。</p>
+            </div>
+            <div id="posts-container"></div>
+        </div>
+
+        <div id="detail-view">
+            <button onclick="showList()" class="back-btn">← 返回列表</button>
+            
+            <article>
+                <h1 id="detail-title" style="font-size: 2rem; margin-bottom: 10px;"></h1>
+                <div id="detail-meta" class="post-meta" style="margin-bottom: 25px;"></div>
+                
+                <img id="detail-image" class="article-cover" style="display: none;">
+                
+                <div id="detail-content" class="article-content"></div>
+            </article>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        //  配置区域：在这里写你的文章
+        // ==========================================
+        const blogData = [
+            {
+                id: 1,
+                title: "科学上网电脑代理工具",
+                date: "2026-02-03",
+                tag: "Hardware",
+                // 列表显示的简介
+                summary: "关于clash代理工具获取安装与使用...",
+                // 文章详情里的图片 (如果没有图，可以留空 "")
+                image: "",
+                // 文章正文 (支持 HTML 标签，比如 <br> 换行, <b> 加粗)
+                content: `
+                    <p>很多小伙伴获取了一些科学上网的节点之后，不知道在哪里配置，可以使用什么工具，对大家网上冲浪有一些阻碍，我甚至看到有一些无良商家在海鲜市场卖免费的开源工具，
+这纯纯是圈钱行为，如果你已经购买，请你立即找到购买的商家退款，并找平台投诉。</p>
+                    <h3>前言</h3>
+                    <p>那么我们该如何去获取这些工具呢？这些代理工具一般都是在GitHub（开源资源网站）免费开源的，但是因为有一些同学因为网络太慢导致无法进入，而被劝退，那么本期，
+我就来告诉大家，如何获取并解压安装这些工具。</p>
+                    <p><b>教程</b><br>
+                    常见的Windows10/11系统可用的代理工具（win10前的系统不清楚）一般是Clash Verge、v2rayN 等等等的一些工具，我着重介绍Clash Verge这款工具也是我目前正在使用的一款
+那么下面为大家附上下载地址
+https://github.com/clash-verge-rev/clash-verge-rev?tab=readme-ov-file
+这里是GitHub的Clash Verge的代码页面，我们往下翻，就能看到安装字样（建议开启浏览器翻译）我们点击“发布页面”我们就会跳转到Clash Verge的发行版页面，再次向下翻
+我们找到“下载地址“的大标题，我们下载windows正常版本就好，然后根据你的电脑系统选择版本下载。
+下载完成之后在浏览器提示下载完成的窗口点击”打开文件”在本地解压，然后找到小猫图标的Clash Verge.exe双击运行，然后在里面的订阅导入订阅文件链接，再选择好节点
+就可以连接上网打开NEW sei kai（日语读音“世界”）了
+                `
+            },
+            {
+                id: 2,
+                title: "iPhone 7 Plus 的折腾日记",
+                date: "2026-01-27",
+                tag: "iOS",
+                summary: "成功给这台备用机刷入了 iOS 15 越狱，尝试安装了 DynamicPeninsula，效果出乎意料...",
+                image: "", // 这篇文章没有配图，留空即可
+                content: `
+                    <p>家里翻出来一台成色还不错的 iPhone 7 Plus，一直放在抽屉里吃灰。最近看到社区里有关于 iOS 15 无根越狱的讨论，手痒决定折腾一下。</p>
+                    <h3>折腾过程</h3>
+                    <p>使用的工具是 Dopamine（多巴胺）。整个过程比我想象中要顺利，只需要通过巨魔商店 (TrollStore) 安装即可。</p>
+                    <p>装完越狱后的第一件事就是安装了 <i>DynamicPeninsula</i>，它能在老设备上模拟灵动岛的效果。虽然 7P 只有刘海上面的大额头，但看起来还是挺有科技感的。</p>
+                `
+            }
+        ];
+
+        // ==========================================
+        //  逻辑代码 (不需要修改)
+        // ==========================================
+        
+        const listView = document.getElementById('list-view');
+        const detailView = document.getElementById('detail-view');
+        const postsContainer = document.getElementById('posts-container');
+
+        // 1. 初始化：渲染文章列表
+        function initPosts() {
+            postsContainer.innerHTML = '';
+            blogData.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.onclick = () => showPost(post.id); // 点击卡片跳转
+                card.innerHTML = `
+                    <h2 class="post-title">${post.title}</h2>
+                    <div class="post-meta"><span class="tag">#${post.tag}</span> ${post.date}</div>
+                    <p class="post-excerpt">${post.summary}</p>
+                `;
+                postsContainer.appendChild(card);
+            });
+        }
+
+        // 2. 显示文章详情
+        function showPost(id) {
+            const post = blogData.find(p => p.id === id);
+            if (!post) return;
+
+            // 填充数据
+            document.getElementById('detail-title').textContent = post.title;
+            document.getElementById('detail-meta').innerHTML = `<span class="tag">#${post.tag}</span> ${post.date}`;
+            document.getElementById('detail-content').innerHTML = post.content;
+            
+            // 图片处理
+            const imgEl = document.getElementById('detail-image');
+            if (post.image) {
+                imgEl.src = post.image;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            // 切换视图
+            listView.style.display = 'none';
+            detailView.style.display = 'block';
+            window.scrollTo(0, 0); // 回到顶部
+        }
+
+        // 3. 返回列表
+        function showList() {
+            detailView.style.display = 'none';
+            listView.style.display = 'block';
+        }
+
+        // 4. 主题切换逻辑 (保持不变)
+        const toggleBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        html.setAttribute('data-theme', savedTheme);
+        toggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        toggleBtn.addEventListener('click', () => {
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            toggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // 启动！
+        initPosts();
+    </script>
+</body>
+</html>
